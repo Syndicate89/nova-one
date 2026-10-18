@@ -30,7 +30,7 @@ function fail3D(){document.body.dataset.renderer='fallback';$('#product').hidden
 const pointerOffset={x:0,y:0};addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&innerWidth>600){pointerOffset.x=(e.clientX/innerWidth-.5)*.12;pointerOffset.y=(e.clientY/innerHeight-.5)*.08;}},{passive:true});
 async function start3D(){
  try{
-  const [T,{createHeadphones},{RoomEnvironment}]=await Promise.all([import('./vendor/three.module.js'),import('./headphones.js'),import('./vendor/RoomEnvironment.js')]);
+  const [T,{createHeadphones},{RoomEnvironment}]=await Promise.all([import('./vendor/three.module.js'),import('./headphones.js?v=dd2d74f4ae27'),import('./vendor/RoomEnvironment.js')]);
   const canvas=$('#product'),renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<=600?1.5:1.75));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;renderer.setClearColor(0,0);
   const scene=new T.Scene(),camera=new T.OrthographicCamera(-4,4,3,-3,.1,100);camera.position.set(0,.2,12);camera.lookAt(0,.2,0);
   const pmrem=new T.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.04);scene.environment=env.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();

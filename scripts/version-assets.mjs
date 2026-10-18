@@ -1,0 +1,12 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const hash=text=>createHash('sha256').update(text).digest('hex').slice(0,12);
+const model=await readFile('dist/headphones.js','utf8');
+let app=await readFile('dist/app.js','utf8');
+app=app.replace(/import\('\.\/headphones\.js(?:\?v=[a-f0-9]+)?'\)/,`import('./headphones.js?v=${hash(model)}')`);
+await writeFile('dist/app.js',app);
+const css=await readFile('dist/style.css','utf8');
+let html=await readFile('dist/index.html','utf8');
+html=html.replace(/href="\.\/style\.css(?:\?v=[a-f0-9]+)?"/,`href="./style.css?v=${hash(css)}"`).replace(/src="\.\/app\.js(?:\?v=[a-f0-9]+)?"/,`src="./app.js?v=${hash(app)}"`);
+await writeFile('dist/index.html',html);
+console.log('Versioned application, model and styles by content hash.');

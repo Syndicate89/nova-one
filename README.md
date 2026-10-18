@@ -4,7 +4,7 @@
 
 ## 로컬 실행
 
-Node.js 22 이상에서 `npm start` 실행 후 http://localhost:4173 에 접속하세요. 런타임 라이브러리가 `dist/vendor`에 포함되어 있어 실행 시 npm 설치나 외부 CDN 연결이 필요하지 않습니다. `npm run check`로 JavaScript 구문을 검증합니다.
+Node.js 22 이상에서 `npm start` 실행 후 http://localhost:4173 에 접속하세요. 런타임 라이브러리가 `dist/vendor`에 포함되어 있어 실행 시 npm 설치나 외부 CDN 연결이 필요하지 않습니다. `npm run check`로 JavaScript 구문을 검증합니다. `npm run build`는 앱·모델·스타일의 내용 해시를 URL에 붙여 배포 후 이전 파일이 브라우저 캐시에 남는 것을 방지합니다. GitHub Actions에서도 자동 실행합니다.
 
 ## 구성
 
