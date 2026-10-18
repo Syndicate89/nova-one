@@ -41,7 +41,7 @@ async function start3D(){
   model=createHeadphones();scene.add(model.group);const group=model.group;
   const currentColor=new T.Color(palette[selected].hex),targetColor=new T.Color();
   let w=0,h=0,initial=performance.now(),last=0,offsets=[];
-  function resize(){w=innerWidth;h=innerHeight;const height=w<=600?7.8:5.5;camera.left=-height*w/h/2;camera.right=height*w/h/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix();renderer.setSize(w,h,false);offsets=scenes.map(e=>e.offsetTop);}
+  function resize(){w=innerWidth;h=innerHeight;const height=w<=600?7.8:Math.max(5.5,7.6/(w/h));camera.left=-height*w/h/2;camera.right=height*w/h/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix();renderer.setSize(w,h,false);offsets=scenes.map(e=>e.offsetTop);}
   resize();addEventListener('resize',resize);new ResizeObserver(resize).observe(document.body);
   function poses(){const mobile=w<=600;const x=Math.min(2.35,(camera.right-camera.left)*.25);return mobile?[
    {x:0,y:1.15,s:.82,ry:-.5,rz:-.13,rx:.06},
@@ -51,12 +51,12 @@ async function start3D(){
    {x:0,y:-.10,s:.83,ry:rotation,rz:studioTilt,rx:.03},
    {x:0,y:1.60,s:.79,ry:-.6,rz:-.13,rx:.10}
   ]:[
-   {x:0,y:.20,s:1.12,ry:-.5,rz:-.16,rx:.08},
-   {x:x,y:.12,s:1.14,ry:.6,rz:.09,rx:.06},
+   {x:0,y:-.10,s:1.08,ry:-.5,rz:-.16,rx:.08},
+   {x:x,y:-.10,s:1.08,ry:.6,rz:.09,rx:.06},
    {x:-x,y:detail===1?-.52:.08,s:detail===1?1.55:1.27,ry:[-.85,-.25,-1.23][detail],rz:.08,rx:.08},
-   {x:x,y:.1,s:1.10,ry:-.65,rz:-.12,rx:.1},
-   {x:-.65,y:-.1,s:1.12,ry:rotation,rz:studioTilt,rx:.03},
-   {x:-x,y:.05,s:1.12,ry:-.6,rz:-.13,rx:.1}
+   {x:x,y:-.12,s:1.05,ry:-.65,rz:-.12,rx:.1},
+   {x:-.45,y:-.15,s:1.08,ry:rotation,rz:studioTilt,rx:.03},
+   {x:-x,y:-.15,s:1.08,ry:-.6,rz:-.13,rx:.1}
   ];}
   function render(t){
    if(document.hidden)return;if(t-last<(w<=600?30:15))return;const dt=Math.min(.1,(t-last)/1000||.016);last=t;
