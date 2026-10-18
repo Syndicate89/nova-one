@@ -30,15 +30,15 @@ function fail3D(){document.body.dataset.renderer='fallback';$('#product').hidden
 const pointerOffset={x:0,y:0};addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&innerWidth>600){pointerOffset.x=(e.clientX/innerWidth-.5)*.12;pointerOffset.y=(e.clientY/innerHeight-.5)*.08;}},{passive:true});
 async function start3D(){
  try{
-  const [T,{createHeadphones},{RoomEnvironment}]=await Promise.all([import('./vendor/three.module.js'),import('./headphones.js?v=dd2d74f4ae27'),import('./vendor/RoomEnvironment.js')]);
+  const [T,{createHeadphones}]=await Promise.all([import('./vendor/three.module.js'),import('./headphones.js?v=e9622fa228ff')]);
   const canvas=$('#product'),renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<=600?1.5:1.75));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;renderer.setClearColor(0,0);
   const scene=new T.Scene(),camera=new T.OrthographicCamera(-4,4,3,-3,.1,100);camera.position.set(0,.2,12);camera.lookAt(0,.2,0);
-  const pmrem=new T.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.04);scene.environment=env.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();
-  scene.add(new T.HemisphereLight(0xd8e5ff,0x252531,1.2));
-  const key=new T.DirectionalLight(0xffffff,2.4);key.position.set(-3,5,6);scene.add(key);
-  const rim=new T.DirectionalLight(0xd6ff9d,2.6);rim.position.set(3,2,-4);scene.add(rim);
-  const fill=new T.DirectionalLight(0xb7c3e5,1.6);fill.position.set(-5,-1,2);scene.add(fill);
-  model=createHeadphones();scene.add(model.group);const group=model.group;
+  scene.environment=createStudioEnvironment(T,renderer);scene.environmentIntensity=.85;
+  scene.add(new T.HemisphereLight(0xf0f1f5,0x181c23,.7));
+  const key=new T.DirectionalLight(0xfff4e7,1.9);key.position.set(-3,5,6);scene.add(key);
+  const rim=new T.DirectionalLight(0xd6ff9d,1.05);rim.position.set(3,2,-4);scene.add(rim);
+  const fill=new T.DirectionalLight(0xc4d4ef,.85);fill.position.set(-5,-1,2);scene.add(fill);
+  model=createHeadphones({quality:innerWidth<=600?'mobile':'high'});scene.add(model.group);const group=model.group;
   const currentColor=new T.Color(palette[selected].hex),targetColor=new T.Color();
   let w=0,h=0,initial=performance.now(),last=0,offsets=[];
   function resize(){w=innerWidth;h=innerHeight;const height=w<=600?7.8:Math.max(5.5,7.6/(w/h));camera.left=-height*w/h/2;camera.right=height*w/h/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix();renderer.setSize(w,h,false);offsets=scenes.map(e=>e.offsetTop);}
@@ -70,9 +70,19 @@ async function start3D(){
    group.rotation.x=T.MathUtils.lerp(group.rotation.x,lerp('rx')+(motion.matches?0:pointerOffset.y),smooth);group.rotation.y=T.MathUtils.lerp(group.rotation.y,lerp('ry')+entry*.7+(index===0&&!motion.matches?pointerOffset.x:0),smooth);group.rotation.z=T.MathUtils.lerp(group.rotation.z,lerp('rz'),smooth);
    targetColor.set(palette[selected].hex);currentColor.lerp(targetColor,motion.matches?1:1-Math.exp(-dt*6));model.setColor('#'+currentColor.getHexString());
    const specRect=$('#specs').getBoundingClientRect(),footRect=$('footer').getBoundingClientRect();const specOverlap=Math.max(0,Math.min(h,specRect.bottom)-Math.max(0,specRect.top))/h;const footOverlap=Math.max(0,h-footRect.top)/h;$('#stage').style.opacity=String(1-Math.min(1,Math.max(specOverlap,footOverlap)*1.5));
-   renderer.toneMappingExposure=selected==='lunar'?.9:1.25;renderer.render(scene,camera);document.body.dataset.renderer='webgl';canvas.dataset.rotation=group.rotation.y.toFixed(3);canvas.dataset.scene=String(index);canvas.dataset.color=selected;
+   renderer.toneMappingExposure=selected==='lunar'?.9:1.13;renderer.render(scene,camera);document.body.dataset.renderer='webgl';canvas.dataset.rotation=group.rotation.y.toFixed(3);canvas.dataset.scene=String(index);canvas.dataset.color=selected;
   }
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();renderer.setAnimationLoop(null);fail3D();});renderer.setAnimationLoop(render);
  }catch(error){console.error('NOVA 3D could not start:',error);fail3D();}
+}
+// Original softbox environment: bright, feathered panels in a dark studio.
+// It is generated once; no HDR files, remote assets or per-frame baking.
+function createStudioEnvironment(T,renderer){
+ const studio=new T.Scene();studio.background=new T.Color(.025,.028,.035);
+ const size=128,pixels=new Uint8Array(size*size*4);
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){const edge=Math.min(x,y,size-1-x,size-1-y)/(size*.16),v=Math.round(T.MathUtils.smoothstep(edge,0,1)*255),i=(y*size+x)*4;pixels[i]=pixels[i+1]=pixels[i+2]=v;pixels[i+3]=255;}
+ const texture=new T.DataTexture(pixels,size,size);texture.needsUpdate=true;texture.magFilter=T.LinearFilter;
+ for(const [position,width,height,intensity,tint]of[[[-4,2,3],3,7,7,[1,.96,.91]],[[4,1,1],1.5,6,5,[.87,.93,1]],[[0,6,1],6,2,6,[1,1,1]],[[-1,1,-5],4,5,3,[1,1,1]]]){const color=new T.Color().setRGB(tint[0]*intensity,tint[1]*intensity,tint[2]*intensity),panel=new T.Mesh(new T.PlaneGeometry(width,height),new T.MeshBasicMaterial({color,map:texture,side:T.DoubleSide}));panel.position.set(...position);panel.lookAt(0,0,0);studio.add(panel);}
+ const generator=new T.PMREMGenerator(renderer),target=generator.fromScene(studio,.035);generator.dispose();studio.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose();}});texture.dispose();return target.texture;
 }
 if(new URLSearchParams(location.search).get('view')==='static')fail3D();else start3D();
