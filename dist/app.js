@@ -36,8 +36,8 @@ async function start3D(){
   const pmrem=new T.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.04);scene.environment=env.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();
   scene.add(new T.HemisphereLight(0xd8e5ff,0x252531,1.2));
   const key=new T.DirectionalLight(0xffffff,2.4);key.position.set(-3,5,6);scene.add(key);
-  const rim=new T.DirectionalLight(0xcaff69,3.3);rim.position.set(3,2,-4);scene.add(rim);
-  const fill=new T.DirectionalLight(0x9fafff,2.1);fill.position.set(-5,-1,2);scene.add(fill);
+  const rim=new T.DirectionalLight(0xd6ff9d,2.6);rim.position.set(3,2,-4);scene.add(rim);
+  const fill=new T.DirectionalLight(0xb7c3e5,1.6);fill.position.set(-5,-1,2);scene.add(fill);
   model=createHeadphones();scene.add(model.group);const group=model.group;
   const currentColor=new T.Color(palette[selected].hex),targetColor=new T.Color();
   let w=0,h=0,initial=performance.now(),last=0,offsets=[];
