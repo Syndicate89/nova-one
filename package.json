@@ -1,0 +1,1 @@
+{"name":"nova-one","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node server.mjs","start":"node server.mjs","check":"node --check dist/app.js && node --check dist/headphones.js"},"dependencies":{"three":"0.180.0"}}
